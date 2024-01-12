@@ -10,9 +10,3 @@
 - grubba-rpc
 - zod
 
-
-
-## Todo:
-
-update grubba-rpc to warn the need of react query
-add !project to twitch
