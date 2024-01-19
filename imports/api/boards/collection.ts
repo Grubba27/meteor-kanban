@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { z } from "zod";
 
 export const cardSchema = z.object({
-  _id: z.string().optional(),
+  _id: z.string(),
   index: z.number(),
   description: z.string(),
   color: z.string(),

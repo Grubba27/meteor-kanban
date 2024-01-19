@@ -2,6 +2,7 @@ import { Boards, BoardsCollection } from "./boards/collection";
 import { z } from "zod";
 import { createModule } from "grubba-rpc";
 import { Meteor } from "meteor/meteor";
+import { Mongo } from "meteor/mongo";
 
 export const boardsModule = createModule("boards")
   .addMethod("createDefault", z.undefined(), async () => {
@@ -80,7 +81,7 @@ export const boardsModule = createModule("boards")
       if (!collumn) {
         throw new Meteor.Error("Collumn not found");
       }
-      collumn.cards.push(card);
+      collumn.cards.push({...card , _id: new Mongo.ObjectID().toHexString()});
       await BoardsCollection.updateAsync(boardId, board);
     }
   )

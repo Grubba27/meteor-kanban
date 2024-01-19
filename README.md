@@ -26,3 +26,11 @@
 - [ ] being able to update columns title
 
 
+## How to run
+
+- Clone the repo
+- Be sure to have meteor installed if not follow the instructions [here](https://www.meteor.com/developers/install)
+- Run `meteor npm install`
+- Run `meteor`
+
+
