@@ -1,8 +1,76 @@
 import React from "react";
-import type { Collumn } from "../api/boards";
-import { Button, Flex, TextInput } from "@mantine/core";
+import type { Collumn, Card } from "../api/boards";
+import { IconEdit, IconCheck } from "@tabler/icons-react";
+
+import {
+  Button,
+  Flex,
+  Notification,
+  Space,
+  TextInput,
+  UnstyledButton,
+} from "@mantine/core";
 import { api } from "./api";
 import { useParams } from "react-router-dom";
+
+const CardComponent = ({
+  _id,
+  color,
+  description,
+  index,
+  collumnTitle,
+  boardId,
+}: Card & { collumnTitle: string; boardId: string }) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [cardDescription, setCardDescription] = React.useState(description);
+
+  const toggleEdit = () => {
+    setIsEditing((prev) => !prev);
+    setCardDescription(description);
+  };
+  return (
+    <Notification
+      withBorder
+      color={color}
+      onClose={async () => {
+        if (isEditing) return toggleEdit();
+        await api.boards.deleteCard({
+          collumnTitle,
+          boardId,
+          cardId: _id,
+        });
+      }}
+    >
+      <Flex justify="space-between">
+        {isEditing ? (
+          <TextInput
+            size="md"
+            value={cardDescription}
+            onChange={(e) => setCardDescription(e.currentTarget.value)}
+          />
+        ) : (
+          <p>{description}</p>
+        )}
+        <UnstyledButton
+          onClick={async () => {
+            if (isEditing) {
+              await api.boards.updateCardDescription({
+                boardId,
+                collumnTitle,
+                cardId: _id,
+                newDescription: cardDescription,
+              });
+              return toggleEdit();
+            }
+            toggleEdit();
+          }}
+        >
+          {isEditing ? <IconCheck /> : <IconEdit />}
+        </UnstyledButton>
+      </Flex>
+    </Notification>
+  );
+};
 
 export const CollumnComponent = ({ title, cards }: Collumn) => {
   const { boardId } = useParams();
@@ -22,6 +90,10 @@ export const CollumnComponent = ({ title, cards }: Collumn) => {
         />
         <Button
           onClick={async () => {
+            if (!cardDescription) {
+              return;
+            }
+
             console.log("Add a card to the to do column");
             await api.boards.addCard({
               boardId,
@@ -41,12 +113,18 @@ export const CollumnComponent = ({ title, cards }: Collumn) => {
           Add
         </Button>
       </Flex>
-
-      {cards.map(({ _id, description }) => {
+      <Space h="sm" />
+      {cards.map(({ _id, description, color, index }) => {
         return (
-          <div key={_id}>
-            <p>{description}</p>
-          </div>
+          <CardComponent
+            key={_id}
+            _id={_id}
+            description={description}
+            index={index}
+            color={color}
+            boardId={boardId}
+            collumnTitle={title}
+          />
         );
       })}
     </div>

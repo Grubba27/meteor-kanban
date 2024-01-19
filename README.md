@@ -17,10 +17,11 @@
 - [x] Started working in the UI and the backend
 - [x] Flow of creating a new Board / Room
 - [x] Ui of the Board
-- [ ] being able to add new cards
+- [X] being able to add new cards
 - [ ] being able to move cards
-- [ ] being able to delete cards
-- [ ] being able to update cards
+- [ ] being able to move cards to other columns
+- [X] being able to delete cards
+- [X] being able to update cards
 - [ ] being able to add new columns
 - [ ] being able to delete columns
 - [ ] being able to update columns title

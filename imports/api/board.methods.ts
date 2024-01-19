@@ -15,6 +15,7 @@ export const boardsModule = createModule("boards")
               index: 0,
               description: "Add a new card",
               color: "green",
+              _id: new Mongo.ObjectID().toHexString(),
             },
           ],
         },
@@ -25,11 +26,13 @@ export const boardsModule = createModule("boards")
               index: 0,
               description: "Add a new card",
               color: "green",
+              _id: new Mongo.ObjectID().toHexString(),
             },
             {
               index: 1,
               description: "Add a new card",
               color: "red",
+              _id: new Mongo.ObjectID().toHexString(),
             },
           ],
         },
@@ -40,6 +43,7 @@ export const boardsModule = createModule("boards")
               index: 0,
               description: "Add a new card",
               color: "green",
+              _id: new Mongo.ObjectID().toHexString(),
             },
           ],
         },
@@ -47,6 +51,7 @@ export const boardsModule = createModule("boards")
           title: "Blocked",
           cards: [
             {
+              _id: new Mongo.ObjectID().toHexString(),
               index: 0,
               description: "Add a new card",
               color: "green",
@@ -81,8 +86,57 @@ export const boardsModule = createModule("boards")
       if (!collumn) {
         throw new Meteor.Error("Collumn not found");
       }
-      collumn.cards.push({...card , _id: new Mongo.ObjectID().toHexString()});
+      collumn.cards.push({
+        ...card,
+        _id: new Mongo.ObjectID().toHexString(),
+        index: collumn.cards.length,
+      });
       await BoardsCollection.updateAsync(boardId, board);
     }
   )
+  .addMethod(
+    "updateCardDescription",
+    z.object({
+      boardId: z.string(),
+      collumnTitle: z.string(),
+      cardId: z.string(),
+      newDescription: z.string(),
+    }),
+    async ({ boardId, collumnTitle, cardId, newDescription }) => {
+      const board = await BoardsCollection.findOneAsync(boardId);
+      if (!board) {
+        throw new Meteor.Error("Board not found");
+      }
+      const collumn = board.collumns.find((c) => c.title === collumnTitle);
+      if (!collumn) {
+        throw new Meteor.Error("Collumn not found");
+      }
+      const card = collumn.cards.find((c) => c._id === cardId);
+      if (!card) {
+        throw new Meteor.Error("Card not found");
+      }
+      card.description = newDescription;
+      await BoardsCollection.updateAsync(boardId, board);
+    }
+  )
+  .addMethod("deleteCard", z.object({
+    boardId: z.string(),
+    collumnTitle: z.string(),
+    cardId: z.string(),
+  }), async ({boardId, collumnTitle, cardId}) => {
+    const board = await BoardsCollection.findOneAsync(boardId);
+    if (!board) {
+      throw new Meteor.Error("Board not found");
+    }
+    const collumn = board.collumns.find((c) => c.title === collumnTitle);
+    if (!collumn) {
+      throw new Meteor.Error("Collumn not found");
+    }
+    const cardIndex = collumn.cards.findIndex((c) => c._id === cardId);
+    if (cardIndex === -1) {
+      throw new Meteor.Error("Card not found");
+    }
+    collumn.cards.splice(cardIndex, 1);
+    await BoardsCollection.updateAsync(boardId, board);
+  })
   .buildSubmodule();
